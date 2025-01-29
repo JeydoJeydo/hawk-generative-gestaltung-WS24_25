@@ -11,24 +11,35 @@ class Data{
 
 	// ALTITUDE
 	altitude = undefined;
+	#current_altitude = undefined;
+
+	// LATITUDE
+	latitude = undefined;
+	#current_latitude = undefined;
+
+	// LONGITUDE
+	longitude = undefined;
+	#current_longitude = undefined;
 
 	// DIMENSIONS
 	dimensions = undefined;
 
 	constructor(){
 		/*
-		this.#getAbsoluteOrientation();
 		this.#getAcceleration();
-		this.#getAltitude();
-		this.#getDeviceDimensions();
 		*/
 	}
 
 	initSensors(){
+		//this.#initAbsoluteOrientation();
 		this.#initSound();
+		//this.#initAcceleration();
+		this.#initAltitude();
 		this.#getDeviceDimensions();
 	}
 
+	#initAbsoluteOrientation(){
+	}
 	#getAbsoluteOrientation(){
 		console.log("absolute orientation");
 	};
@@ -50,12 +61,33 @@ class Data{
 		this.sound = this.#sound_mic.getLevel();
 	};
 
+	#initAcceleration(){
+	}
 	#getAcceleration(){
-		console.log("acceleration");
+	};
+
+	#initAltitude(){
+		if("geolocation" in navigator){
+			let watchListener = navigator.geolocation.watchPosition(
+				(position) => {
+					this.#current_altitude = position.coords.altitude; // Is null on non mobile devices
+					this.#current_latitude = position.coords.latitude;
+					this.#current_longitude = position.coords.longitude;
+				},
+				(error) => {
+					throw new Error(error);
+				}
+			);
+		}else{
+			throw new Error("Geolocation is not supported");
+		}
 	};
 	#getAltitude(){
-		console.log("altitude");
+		this.altitude = this.#current_altitude;
+		this.latitude = this.#current_latitude;
+		this.longitude = this.#current_longitude;
 	};
+
 	#getDeviceDimensions(){
 		this.dimensions = { width: window.innerWidth, height: window.innerHeight };
 	};
@@ -65,6 +97,7 @@ class Data{
 	 */
 	refresh(){
 		this.#getSound();
+		this.#getAltitude();
 	}
 }
 
@@ -78,5 +111,5 @@ function setup() {
 function draw() {
 	background(200);
 	data.refresh();
-	console.log(data.sound, data.dimensions);
+	console.log(data.sound, data.dimensions, data.altitude, data.longitude, data.latitude);
 }
