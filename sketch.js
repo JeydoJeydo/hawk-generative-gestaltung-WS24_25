@@ -116,13 +116,41 @@ class Data{
 	}
 }
 
-let myShader;
-function preload(){
-	//myShader = loadShader("shaders/shader.vert", "shaders/shader.frag");
-	// shader: https://github.com/aferriss/p5jsShaderExamples/tree/gh-pages
+class Blur{
+	constructor(x = 0, y = 0, dimensions = 200){
+		this.initXPos = x;
+		this.xPos = x;
+
+		this.initYPos = y;
+		this.yPos = y;
+
+		this.initDimensions = dimensions;
+		this.dimensions = dimensions;
+
+		this.elem = document.querySelector(".blur-field").cloneNode(true);
+
+		document.querySelector("#canvas-container").insertBefore(this.elem, this.elem.nextSilbling);
+
+		this.elem.style.left = this.xPos - (this.dimensions / 2);
+		this.elem.style.top = this.yPos - (this.dimensions / 2);
+		this.elem.style.width = this.dimensions;
+		this.elem.style.height = this.dimensions;
+	}
+	x(x){
+		this.xPos = x;
+		this.elem.style.left = this.xPos - (this.dimensions / 2);
+		return this;
+	}
+	y(y){
+		this.yPos = y;
+		this.elem.style.top = this.yPos - (this.dimensions / 2);
+		return this;
+	}
 }
 
 let data;
+
+let firstBlur;
 function setup() {
 	let canvas = createCanvas(400, 400, WEBGL);
 	//debugMode(GRID);
@@ -133,7 +161,11 @@ function setup() {
 	noStroke();
 	// DARKEST is goog
 	//blendMode(DARKEST);
+	//
+	firstBlur = new Blur(300, 100, 300);
 }
+
+
 
 // wenn leise = kreise langsam drehend
 // wenn lauter = viele Stangen voreinander
@@ -144,6 +176,10 @@ function draw() {
 	//shader(myShader);
 	background(200);
 	orbitControl();
+
+	//firstBlur.x(firstBlur.xPos - 1).y(firstBlur.yPos + 1);
+	//firstBlur.x(mouseX).y(mouseY);
+	firstBlur.x(width / 2 + 50).y(width / 2 + 50);
 
 	/*
 	data.refresh();
