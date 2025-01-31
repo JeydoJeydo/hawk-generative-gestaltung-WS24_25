@@ -152,20 +152,18 @@ class Blur{
 let gg;
 
 let data;
+let sceneObjects = [];
+let sceneObjectsTwo = [];
 
 let blurs = [];
 function setup() {
 	let canvas = createCanvas(600, 600, WEBGL);
-	//debugMode(GRID);
 	canvas.parent("canvas-container");
-	angleMode(DEGREES);
+	//angleMode(DEGREES);
 
 	data = new Data();
 	data.initSensors();
 	noStroke();
-	// DARKEST is goog
-	//blendMode(DARKEST);
-	
 
 	/*
 	blurs.push(new Blur(250, 400, 300));
@@ -173,7 +171,39 @@ function setup() {
 	blurs.push(new Blur(250, 250, 400));
 	*/
 
-	gg = createGradientTexture(100, 100, [color("#e5b750"), color("#d4632a"), color("#d76fc8"), color("#373bbe")]);
+	for(let i = 0; i < 7; i++){
+		let gradientArray = gradientColorArrayGenerator(random(2, 5));
+		sceneObjects.push(createGradientTexture(100, 100, gradientArray));
+	}
+	for(let i = 0; i < 10; i++){
+		let gradientArray = gradientColorArrayGenerator(random(4, 10));
+		sceneObjectsTwo.push(createGradientTexture(100, 100, gradientArray));
+	}
+}
+
+/**
+ * Generate an array of random picked colors
+ *
+ * @param {Number} steps - steps the gradient will have
+ */
+function gradientColorArrayGenerator(steps){
+	const AVAILABLE_COLORS = [color("#e5b750"), color("#d4632a"), color("#d76fc8"), color("#373bbe"), color("#5b2814"), color("#95bb5e"), color("#2d1c3f")];
+
+	// cap steps size
+	steps > AVAILABLE_COLORS.length ? (steps = AVAILABLE_COLORS.length) : (steps = steps);
+	steps == 1 ? (steps = 2) : (steps = steps);
+
+	// Fisher-Yates Shuffle
+	let cIndex = AVAILABLE_COLORS.length;
+	while (cIndex != 0){
+		let randomIndex = Math.floor(Math.random() * cIndex);
+		cIndex--;
+		[AVAILABLE_COLORS[cIndex], AVAILABLE_COLORS[randomIndex]] = [AVAILABLE_COLORS[randomIndex], AVAILABLE_COLORS[cIndex]];
+	}
+
+	let cappedColors = AVAILABLE_COLORS.splice(0, steps);
+
+	return cappedColors;
 }
 
 /**
@@ -226,9 +256,6 @@ function draw() {
 	background(200);
 	orbitControl();
 
-	//firstBlur.x(firstBlur.xPos - 1).y(firstBlur.yPos + 1);
-	//firstBlur.x(mouseX).y(mouseY);
-	
 	// Rotate blurs around their position
 	let radi = 50;
 	blurs.forEach(el => {
@@ -241,44 +268,35 @@ function draw() {
 	console.log(data.sound, data.dimensions, data.altitude, data.longitude, data.latitude, data.salt);
 	*/
 
-	
-	/*
-	pointLight(255, 255, 255, -100, -100, -100); // red
-	pointLight(0, 0, 255, 100, 100, 100); // blue
-	pointLight(0, 255, 0, -80, 20, -50); // yellow
+	let sphereRadius = 50;
+	let R_Sphere = sphereRadius / sin(PI / sceneObjects.length);
 
-	specularMaterial(255, 0, 0);
-	*/
+	let cylinderRadius = 15;
+	let cylinderHeight = 200;
+	let R_Cylinder = sphereRadius / sin(PI / sceneObjectsTwo.length);
 
-	/*
-	pointLight(255, 255, 255, -100, -100, -100); // red
-	pointLight(0, 0, 255, 100, 100, 100); // blue
-	pointLight(0, 255, 0, -80, 20, -50); // yellow
-	*/
+	if(false){
+		sceneObjects.forEach((obj, i)=> {
+			let angle = TWO_PI * i / sceneObjects.length;
+			let x = R_Sphere * cos(angle);
+			let y = R_Sphere * sin(angle);
 
-	//pointLight(155, 155, 155, 150, -60, -50); // red-top-right
-	//pointLight(0, 255, 0, 150, -20, 100); // yellow
-
-	//specularMaterial(255, 0, 0);
-
-	for (let i = 0; i < 6; i++) {
-		push();
-		let x = cos(360 * i / 6) * 100;
-		let y = sin(360 * i / 6) * 100;
-		translate(x, y, 0);
-		//normalMaterial(); // Vibrant color reflection
-		/*
-		if(i < 2){
-			specularMaterial(255, 0, 0);
-		}else if(i < 4){
-			specularMaterial(120, 120, 0);
-		}else{
-			specularMaterial(20, 120, 0);
-		}
-		*/
-
-		texture(gg);
-		sphere(50, 50, 50);
-		pop();
+			push();
+			translate(x, y, 0);
+			rotateZ(angle);
+			texture(obj);
+			sphere(50, 50, 50);
+			pop();
+		});
+	}else{
+		sceneObjectsTwo.forEach((obj, i)=> {
+			let angleTwo = TWO_PI * i / sceneObjects.length;
+			push();
+			translate(0, 0, i * (cylinderRadius * 2));
+			rotateZ(angleTwo);
+			texture(obj);
+			cylinder(cylinderRadius, cylinderHeight, 50);
+			pop();
+		});
 	}
 }
