@@ -127,42 +127,127 @@ class Blur{
 		this.initDimensions = dimensions;
 		this.dimensions = dimensions;
 
-		this.elem = document.querySelector(".blur-field").cloneNode(true);
+		this.elem = document.querySelector(".initial-blur").cloneNode(true);
+		this.elem.classList.remove("initial-blur");
 
 		document.querySelector("#canvas-container").insertBefore(this.elem, this.elem.nextSilbling);
 
-		this.elem.style.left = this.xPos - (this.dimensions / 2);
-		this.elem.style.top = this.yPos - (this.dimensions / 2);
-		this.elem.style.width = this.dimensions;
-		this.elem.style.height = this.dimensions;
+		this.elem.style.left = this.xPos - (this.dimensions / 2) + "px";
+		this.elem.style.top = this.yPos - (this.dimensions / 2) + "px";
+		this.elem.style.width = this.dimensions + "px";
+		this.elem.style.height = this.dimensions + "px";
 	}
 	x(x){
 		this.xPos = x;
-		this.elem.style.left = this.xPos - (this.dimensions / 2);
+		this.elem.style.left = this.xPos - (this.dimensions / 2) + "px";
 		return this;
 	}
 	y(y){
 		this.yPos = y;
-		this.elem.style.top = this.yPos - (this.dimensions / 2);
+		this.elem.style.top = this.yPos - (this.dimensions / 2) + "px";
 		return this;
 	}
 }
 
+let gg;
+
 let data;
 
-let firstBlur;
+let blurs = [];
 function setup() {
-	let canvas = createCanvas(400, 400, WEBGL);
+	let canvas = createCanvas(600, 600, WEBGL);
 	//debugMode(GRID);
 	canvas.parent("canvas-container");
+	angleMode(DEGREES);
 
 	data = new Data();
 	data.initSensors();
 	noStroke();
 	// DARKEST is goog
 	//blendMode(DARKEST);
-	//
-	firstBlur = new Blur(300, 100, 300);
+	
+
+	/*
+	blurs.push(new Blur(250, 400, 300));
+	blurs.push(new Blur(380, 350, 400));
+	blurs.push(new Blur(250, 250, 400));
+	*/
+
+	gg = createObjTexture();
+}
+
+/**
+ * Creates a texture
+ *
+ * @param {Number} w - width of texture
+ * @param {Number} h - height of texture
+ * @returns {Any} - Texture to be used on a 3d object
+ */
+function createObjTexture(w = 100, h = 100){
+	let cT = createGraphics(w, h);
+
+	let gradientColors = [color("#e5b750"), color("#d4632a"), color("#d76fc8"), color("#373bbe")];
+	//let gradientColors = [color("#e5b750"), color("#d4632a"), color("#d76fc8")];
+
+	for(let x = 0; x < w; x++){
+		for(let y = 0; y < h; y++){
+			let stopSize = Math.round(w / (gradientColors.length - 1));
+			let colorEntryIndex = Math.floor(y / stopSize);
+
+			if(colorEntryIndex >= gradientColors.length - 1){
+				colorEntryIndex = gradientColors.length - 2;
+			}
+
+			console.log(colorEntryIndex, stopSize);
+			let cur = gradientColors[colorEntryIndex];
+			let nex = gradientColors[colorEntryIndex + 1];
+			let inter = map(y % stopSize, 0, stopSize, 0, 1);
+			let lerpedColor = lerpColor(cur, nex, inter);
+			
+			let gradientStops = gradientColors.length - 1;
+
+			cT.set(x, y, lerpedColor);
+
+
+			/*
+			// Normalize width range to 0 - 1. Range from 0 to h at pos y will be range 0 to 1.
+			let stopSize = Math.round(w / gradientColors.length) - 1;
+			let colorEntryIndex = Math.floor(y / stopSize);
+
+			if(colorEntryIndex >= gradientColors.length - 2){
+				colorEntryIndex = gradientColors.length - 2;
+			}
+
+			let cur = gradientColors[colorEntryIndex];
+			let nex = gradientColors[colorEntryIndex + 1];
+			//let inter = map(y, 0, h, 0, 1);
+			let inter = map(y % stopSize, 0, stopSize, 0, 1);
+			let lerpedColor = lerpColor(cur, nex, inter);
+
+
+			console.log("y", y, "colorEntryIndex", colorEntryIndex, colorEntryIndex + 1, inter)
+			cT.set(x, y, lerpedColor);
+			*/
+		}
+	}
+	cT.updatePixels();
+	return cT;
+	/*
+	let gfx = createGraphics(w, h);
+    gfx.noiseDetail(100, 0.2); // Adjust noise properties
+
+    for (let y = 0; y < h; y++) {
+        let inter = map(y, 0, h, 0, 1);
+        
+        // Add Perlin noise to distort the gradient
+        let noiseOffset = map(noise(y * 0.05), 0, 1, -0.2, 0.2);
+        let c = lerpColor(color(255, 0, 0), color(0, 0, 255), inter + noiseOffset);
+        
+        gfx.stroke(c);
+        gfx.line(0, y, w, y);
+    }
+    return gfx;
+    */
 }
 
 
@@ -172,6 +257,9 @@ function setup() {
 // drehbewegung an Lautstärke koppeln
 // farbe an Lautstärke koppeln
 
+
+let angle = 0;
+
 function draw() {
 	//shader(myShader);
 	background(200);
@@ -179,7 +267,13 @@ function draw() {
 
 	//firstBlur.x(firstBlur.xPos - 1).y(firstBlur.yPos + 1);
 	//firstBlur.x(mouseX).y(mouseY);
-	firstBlur.x(width / 2 + 50).y(width / 2 + 50);
+	
+	// Rotate blurs around their position
+	let radi = 50;
+	blurs.forEach(el => {
+		el.x(el.initXPos + 50 * cos(angle)).y(el.initYPos + 50 * sin(angle));
+	})
+	angle++;
 
 	/*
 	data.refresh();
@@ -195,19 +289,24 @@ function draw() {
 	specularMaterial(255, 0, 0);
 	*/
 
+	/*
 	pointLight(255, 255, 255, -100, -100, -100); // red
 	pointLight(0, 0, 255, 100, 100, 100); // blue
 	pointLight(0, 255, 0, -80, 20, -50); // yellow
+	*/
+
 	//pointLight(155, 155, 155, 150, -60, -50); // red-top-right
+	//pointLight(0, 255, 0, 150, -20, 100); // yellow
 
 	//specularMaterial(255, 0, 0);
 
 	for (let i = 0; i < 6; i++) {
 		push();
-		let x = cos(TWO_PI * i / 6) * 100;
-		let y = sin(TWO_PI * i / 6) * 100;
+		let x = cos(360 * i / 6) * 100;
+		let y = sin(360 * i / 6) * 100;
 		translate(x, y, 0);
 		//normalMaterial(); // Vibrant color reflection
+		/*
 		if(i < 2){
 			specularMaterial(255, 0, 0);
 		}else if(i < 4){
@@ -215,6 +314,9 @@ function draw() {
 		}else{
 			specularMaterial(20, 120, 0);
 		}
+		*/
+
+		texture(gg);
 		sphere(50, 50, 50);
 		pop();
 	}
