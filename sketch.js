@@ -10,6 +10,7 @@ class Data{
 	// SOUND
 	sound = undefined;
 	#sound_mic = undefined;
+	#sound_process = [];
 
 	// ACCELERATION
 	acceleration = undefined;
@@ -61,7 +62,19 @@ class Data{
 		}
 	}
 	#getSound(){
-		this.sound = this.#sound_mic.getLevel();
+		let currentLevel = this.#sound_mic.getLevel();
+
+		this.#sound_process.push(currentLevel);
+		const LENGTH_OF_AVERAGE = 80;
+		if(this.#sound_process.length >= LENGTH_OF_AVERAGE){
+			this.#sound_process.shift();
+		}
+
+		// average and round to second decimal point
+		let average = this.#sound_process.reduce((a, b) => a + b) / this.#sound_process.length;
+		let roundedAverage = Math.round(average * 100) / 100;
+
+		this.sound = roundedAverage;
 	};
 
 	#initAcceleration(){
@@ -248,25 +261,25 @@ function createGradientTexture(w = 100, h = 100, colors){
 // drehbewegung an Lautstärke koppeln
 // farbe an Lautstärke koppeln
 
+let blurRotation = 0;
+let objectRotation = 0;
 
-let angle = 0;
+let rotationSpeed = 0.001;
+let rotationBlurSpeed = 0.01;
 
 function draw() {
 	//shader(myShader);
-	background(200);
+	background("#d9d6d3");
 	orbitControl();
 
 	// Rotate blurs around their position
 	let radi = 50;
 	blurs.forEach(el => {
-		el.x(el.initXPos + 50 * cos(angle)).y(el.initYPos + 50 * sin(angle));
+		el.x(el.initXPos + 50 * cos(blurRotation)).y(el.initYPos + 50 * sin(blurRotation));
 	})
-	angle++;
 
-	/*
 	data.refresh();
 	console.log(data.sound, data.dimensions, data.altitude, data.longitude, data.latitude, data.salt);
-	*/
 
 	let sphereRadius = 50;
 	let R_Sphere = sphereRadius / sin(PI / sceneObjects.length);
@@ -275,28 +288,32 @@ function draw() {
 	let cylinderHeight = 200;
 	let R_Cylinder = sphereRadius / sin(PI / sceneObjectsTwo.length);
 
-	if(false){
+	if(data.sound < 0.5){
 		sceneObjects.forEach((obj, i)=> {
-			let angle = TWO_PI * i / sceneObjects.length;
-			let x = R_Sphere * cos(angle);
-			let y = R_Sphere * sin(angle);
+			let angleSphere = TWO_PI * i / sceneObjects.length + objectRotation;
+			let x = R_Sphere * cos(angleSphere);
+			let y = R_Sphere * sin(angleSphere);
 
 			push();
 			translate(x, y, 0);
-			rotateZ(angle);
+			rotateZ(angleSphere);
 			texture(obj);
 			sphere(50, 50, 50);
 			pop();
 		});
 	}else{
 		sceneObjectsTwo.forEach((obj, i)=> {
-			let angleTwo = TWO_PI * i / sceneObjects.length;
+			let angleCylinder = TWO_PI * i / sceneObjects.length + objectRotation;
+
 			push();
 			translate(0, 0, i * (cylinderRadius * 2));
-			rotateZ(angleTwo);
+			rotateZ(angleCylinder);
 			texture(obj);
 			cylinder(cylinderRadius, cylinderHeight, 50);
 			pop();
 		});
 	}
+
+	blurRotation += rotationBlurSpeed;
+	objectRotation += rotationSpeed;
 }
