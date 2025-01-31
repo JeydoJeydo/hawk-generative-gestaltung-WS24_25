@@ -188,7 +188,7 @@ function setup() {
 		let gradientArray = gradientColorArrayGenerator(random(2, 5));
 		sceneObjects.push(createGradientTexture(100, 100, gradientArray));
 	}
-	for(let i = 0; i < 10; i++){
+	for(let i = 0; i < 5; i++){
 		let gradientArray = gradientColorArrayGenerator(random(4, 10));
 		sceneObjectsTwo.push(createGradientTexture(100, 100, gradientArray));
 	}
@@ -279,14 +279,13 @@ function draw() {
 	})
 
 	data.refresh();
-	console.log(data.sound, data.dimensions, data.altitude, data.longitude, data.latitude, data.salt);
+	//console.log(data.sound, data.dimensions, data.altitude, data.longitude, data.latitude, data.salt);
 
 	let sphereRadius = 50;
-	let R_Sphere = sphereRadius / sin(PI / sceneObjects.length);
 
 	let cylinderRadius = 15;
-	let cylinderHeight = 200;
-	let R_Cylinder = sphereRadius / sin(PI / sceneObjectsTwo.length);
+		
+	let R_Sphere = sphereRadius / sin(PI / sceneObjects.length);
 
 	if(data.sound < 0.5){
 		sceneObjects.forEach((obj, i)=> {
@@ -303,17 +302,18 @@ function draw() {
 		});
 	}else{
 		sceneObjectsTwo.forEach((obj, i)=> {
-			let angleCylinder = TWO_PI * i / sceneObjects.length + objectRotation;
+			let angleCylinder = TWO_PI * i / (sceneObjectsTwo.length * 2) + objectRotation;
 
 			push();
 			translate(0, 0, i * (cylinderRadius * 2));
 			rotateZ(angleCylinder);
 			texture(obj);
-			cylinder(cylinderRadius, cylinderHeight, 50);
+			// Match length of cylinder to outer most part of spheres
+			cylinder(cylinderRadius, (R_Sphere * 2) + sphereRadius, 50);
 			pop();
 		});
 	}
 
 	blurRotation += rotationBlurSpeed;
-	objectRotation += rotationSpeed;
+	objectRotation += rotationSpeed + (data.sound / 15);
 }
