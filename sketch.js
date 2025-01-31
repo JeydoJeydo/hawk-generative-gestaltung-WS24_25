@@ -173,81 +173,42 @@ function setup() {
 	blurs.push(new Blur(250, 250, 400));
 	*/
 
-	gg = createObjTexture();
+	gg = createGradientTexture(100, 100, [color("#e5b750"), color("#d4632a"), color("#d76fc8"), color("#373bbe")]);
 }
 
 /**
- * Creates a texture
+ * Creates a gradient texture
  *
  * @param {Number} w - width of texture
  * @param {Number} h - height of texture
+ * @param {Any[]} colors - array of colors the gradient will get build from
  * @returns {Any} - Texture to be used on a 3d object
  */
-function createObjTexture(w = 100, h = 100){
+function createGradientTexture(w = 100, h = 100, colors){
 	let cT = createGraphics(w, h);
 
-	let gradientColors = [color("#e5b750"), color("#d4632a"), color("#d76fc8"), color("#373bbe")];
-	//let gradientColors = [color("#e5b750"), color("#d4632a"), color("#d76fc8")];
-
+	// Loop over every pixel of the texture
 	for(let x = 0; x < w; x++){
 		for(let y = 0; y < h; y++){
-			let stopSize = Math.round(w / (gradientColors.length - 1));
+			let stopSize = Math.round(w / (colors.length - 1));
 			let colorEntryIndex = Math.floor(y / stopSize);
 
-			if(colorEntryIndex >= gradientColors.length - 1){
-				colorEntryIndex = gradientColors.length - 2;
+			if(colorEntryIndex >= colors.length - 1){
+				colorEntryIndex = colors.length - 2;
 			}
 
-			console.log(colorEntryIndex, stopSize);
-			let cur = gradientColors[colorEntryIndex];
-			let nex = gradientColors[colorEntryIndex + 1];
+			let cur = colors[colorEntryIndex];
+			let nex = colors[colorEntryIndex + 1];
 			let inter = map(y % stopSize, 0, stopSize, 0, 1);
 			let lerpedColor = lerpColor(cur, nex, inter);
 			
-			let gradientStops = gradientColors.length - 1;
+			let gradientStops = colors.length - 1;
 
 			cT.set(x, y, lerpedColor);
-
-
-			/*
-			// Normalize width range to 0 - 1. Range from 0 to h at pos y will be range 0 to 1.
-			let stopSize = Math.round(w / gradientColors.length) - 1;
-			let colorEntryIndex = Math.floor(y / stopSize);
-
-			if(colorEntryIndex >= gradientColors.length - 2){
-				colorEntryIndex = gradientColors.length - 2;
-			}
-
-			let cur = gradientColors[colorEntryIndex];
-			let nex = gradientColors[colorEntryIndex + 1];
-			//let inter = map(y, 0, h, 0, 1);
-			let inter = map(y % stopSize, 0, stopSize, 0, 1);
-			let lerpedColor = lerpColor(cur, nex, inter);
-
-
-			console.log("y", y, "colorEntryIndex", colorEntryIndex, colorEntryIndex + 1, inter)
-			cT.set(x, y, lerpedColor);
-			*/
 		}
 	}
 	cT.updatePixels();
 	return cT;
-	/*
-	let gfx = createGraphics(w, h);
-    gfx.noiseDetail(100, 0.2); // Adjust noise properties
-
-    for (let y = 0; y < h; y++) {
-        let inter = map(y, 0, h, 0, 1);
-        
-        // Add Perlin noise to distort the gradient
-        let noiseOffset = map(noise(y * 0.05), 0, 1, -0.2, 0.2);
-        let c = lerpColor(color(255, 0, 0), color(0, 0, 255), inter + noiseOffset);
-        
-        gfx.stroke(c);
-        gfx.line(0, y, w, y);
-    }
-    return gfx;
-    */
 }
 
 
