@@ -2,24 +2,28 @@ body {
 	margin: 0;
 	overflow: hidden;
 }
+
 #canvas-container {
 	position: relative;
 	width: 100vw;
 	height: 100vh;
 }
-.blur-field{
+
+.blur-field {
 	position: absolute;
 	top: 50px;
 	left: 20px;
 	width: 200px;
 	height: 200px;
-	backdrop-filter: blur(10px); /* Blurs the content behind it */
+	backdrop-filter: blur(10px);
+	/* Blurs the content behind it */
 	-webkit-mask-image: radial-gradient(circle at center, rgba(0, 0, 0, 1) 30%, rgba(0, 0, 0, 0) 70%);
 	mask-image: radial-gradient(circle at center, rgba(0, 0, 0, 1) 30%, rgba(0, 0, 0, 0) 70%);
 	color: white;
 	cursor: pointer;
 	text-align: center;
 }
-.initial-blur{
+
+.initial-blur {
 	display: none !important;
 }

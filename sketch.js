@@ -130,7 +130,7 @@ class Data{
 }
 
 class Blur{
-	constructor(x = 0, y = 0, dimensions = 200){
+	constructor(x = 0, y = 0, dimensions = 200, givenIntensity = 10){
 		this.initXPos = x;
 		this.xPos = x;
 
@@ -139,6 +139,9 @@ class Blur{
 
 		this.initDimensions = dimensions;
 		this.dimensions = dimensions;
+
+		this.initIntensity = givenIntensity;
+		this.intensity = givenIntensity;
 
 		this.elem = document.querySelector(".initial-blur").cloneNode(true);
 		this.elem.classList.remove("initial-blur");
@@ -149,6 +152,7 @@ class Blur{
 		this.elem.style.top = this.yPos - (this.dimensions / 2) + "px";
 		this.elem.style.width = this.dimensions + "px";
 		this.elem.style.height = this.dimensions + "px";
+		this.elem.style.backdropFilter = `blur(${this.intensity}px)`;
 	}
 	x(x){
 		this.xPos = x;
@@ -160,37 +164,43 @@ class Blur{
 		this.elem.style.top = this.yPos - (this.dimensions / 2) + "px";
 		return this;
 	}
+	setIntensity(intens){
+		this.intensity = intens;
+		this.elem.style.backdropFilter = `blur(${this.intensity}px)`;
+		return this;
+	}
 }
 
-let gg;
-
+/** @type {any} - Stores the sensor data object */
 let data;
-let sceneObjects = [];
-let sceneObjectsTwo = [];
+
+/** @type {any[]} - Stores all spheres */
+let sceneSpheres = [];
+
+/** @type {any[]} - Stores all cylinders */
+let sceneCylinders = [];
 
 let blurs = [];
 function setup() {
 	let canvas = createCanvas(600, 600, WEBGL);
 	canvas.parent("canvas-container");
-	//angleMode(DEGREES);
+	noStroke();
 
 	data = new Data();
 	data.initSensors();
-	noStroke();
 
-	/*
-	blurs.push(new Blur(250, 400, 300));
-	blurs.push(new Blur(380, 350, 400));
-	blurs.push(new Blur(250, 250, 400));
-	*/
+	blurs.push(new Blur((width / 6) * 2, (height / 6) * 2, (width / 6) * 3, 10));
+	blurs.push(new Blur((width / 6) * 4, (height / 6) * 4, (width / 6) * 3, 5));
+	blurs.push(new Blur((width / 6) * 3.5, (height / 6) * 3, (width / 6) * 2, 3));
+	blurs.push(new Blur((width / 6) * 2, (height / 6) * 4.5, (width / 6) * 4, 3));
 
 	for(let i = 0; i < 7; i++){
 		let gradientArray = gradientColorArrayGenerator(random(2, 5));
-		sceneObjects.push(createGradientTexture(100, 100, gradientArray));
+		sceneSpheres.push(createGradientTexture(100, 100, gradientArray));
 	}
 	for(let i = 0; i < 7; i++){
 		let gradientArray = gradientColorArrayGenerator(random(4, 10));
-		sceneObjectsTwo.push(createGradientTexture(100, 100, gradientArray));
+		sceneCylinders.push(createGradientTexture(100, 100, gradientArray));
 	}
 }
 
@@ -254,11 +264,6 @@ function createGradientTexture(w = 100, h = 100, colors){
 	return cT;
 }
 
-// wenn leise = kreise langsam drehend
-// wenn lauter = viele Stangen voreinander
-// drehbewegung an Lautstärke koppeln
-// farbe an Lautstärke koppeln
-
 /** @type {Number} */
 let blurRotation = 0;
 
@@ -270,6 +275,18 @@ let rotationSpeed = 0.001;
 
 /** @type {Number} */
 let rotationBlurSpeed = 0.01;
+
+/** @type {Number} */
+let smallestAnimationState = 10;
+
+/** @type {Number} */
+let biggestAnimationState = 50;
+
+/** @type {Number} */
+const OBJECT_QUALITY = 20;
+
+/** @type {Number} - Speed of switching animation between spheres and cylinders */
+let animationSpeed = 5;
 
 /** @type {Number} - Number used in animation for scaling all objects */
 let objectScaling = 50;
@@ -307,7 +324,7 @@ function draw() {
 	//console.log(data.sound, data.dimensions, data.altitude, data.longitude, data.latitude, data.salt);
 		
 	/** @type {Number} - Radius of animated object based on amount of objects in scene */
-	let R_Object = objectScaling / sin(PI / sceneObjects.length);
+	let R_Object = objectScaling / sin(PI / sceneSpheres.length);
 
 	if(data.sound >= 0.7){
 		mode = "fast";
@@ -327,8 +344,8 @@ function draw() {
 	}
 
 	if(allowChange){
-		if(objectScaling > 10 && isSmallest === false){
-			objectScaling -= 5;
+		if(objectScaling > smallestAnimationState && isSmallest === false){
+			objectScaling -= animationSpeed;
 		}else{
 			// fires when scaling animation is the smallest and the shown
 			// objects (spheres or cylinders) shall be switched
@@ -336,9 +353,9 @@ function draw() {
 			showSpheresToggle = changeType === "slow" ? false : true;
 		}
 
-		if(isSmallest && objectScaling < 50){
-			objectScaling += 5;
-		}else if(isSmallest && objectScaling >= 50){
+		if(isSmallest && objectScaling < biggestAnimationState){
+			objectScaling += animationSpeed;
+		}else if(isSmallest && objectScaling >= biggestAnimationState){
 			// fires when the whole animation cycle is done
 			allowChange = false;
 			isSmallest = false;
@@ -348,8 +365,8 @@ function draw() {
 
 
 	if(showSpheresToggle){
-		sceneObjects.forEach((obj, i)=> {
-			let angleSphere = TWO_PI * i / sceneObjects.length + objectRotation;
+		sceneSpheres.forEach((obj, i)=> {
+			let angleSphere = TWO_PI * i / sceneSpheres.length + objectRotation;
 			let x = R_Object * cos(angleSphere);
 			let y = R_Object * sin(angleSphere);
 
@@ -357,19 +374,19 @@ function draw() {
 			translate(x, y, 0);
 			rotateZ(angleSphere);
 			texture(obj);
-			sphere(objectScaling, 50, 50);
+			sphere(objectScaling, OBJECT_QUALITY, OBJECT_QUALITY);
 			pop();
 		});
 	}else{
-		sceneObjectsTwo.forEach((obj, i)=> {
-			let angleCylinder = TWO_PI * i / (sceneObjectsTwo.length * 2) + objectRotation;
+		sceneCylinders.forEach((obj, i)=> {
+			let angleCylinder = TWO_PI * i / (sceneCylinders.length * 2) + objectRotation;
 
 			push();
 			translate(0, 0, i * -(cylinderRadius * 2));
 			rotateZ(angleCylinder * (i + 1));
 			texture(obj);
 			// Match length of cylinder to outer most part of spheres
-			cylinder(cylinderRadius, (R_Object * 2) + (objectScaling * 2), 50);
+			cylinder(cylinderRadius, (R_Object * 2) + (objectScaling * 2), OBJECT_QUALITY, OBJECT_QUALITY);
 			pop();
 		});
 	}
