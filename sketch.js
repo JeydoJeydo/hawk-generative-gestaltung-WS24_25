@@ -271,18 +271,14 @@ let sphereRadius = 50;
 
 let cylinderRadius = 15;
 
-let isInTransformation = false;
 let showSpheresToggle = true;
 
-let direction = true;
 let isSmallest = false;
-let firstAnimation = true;
 
 //
 let mode = "slow";
 let lastMode = mode;
 let allowChange = false;
-let animationIsDone = true;
 let changeType;
 
 function draw() {
@@ -298,16 +294,12 @@ function draw() {
 
 	data.refresh();
 	//console.log(data.sound, data.dimensions, data.altitude, data.longitude, data.latitude, data.salt);
-
-
 		
 	let R_Sphere = sphereRadius / sin(PI / sceneObjects.length);
 
 	if(data.sound >= 0.7){
-		//direction = true;
 		mode = "fast";
 	}else{
-		//direction = false;
 		mode = "slow";
 	}
 
@@ -322,38 +314,20 @@ function draw() {
 		allowChange = true;
 	}
 
-	// Fires when change is permitted and the animation is done
-	if(allowChange && animationIsDone){
-		if(changeType == "slow"){
-			if(sphereRadius > 10 && isSmallest === false){
+	// Fires when change is permitted
+	if(allowChange){
+		if(sphereRadius > 10 && isSmallest === false){
 				sphereRadius -= 5;
-			}else{
-				isSmallest = true;
-				showSpheresToggle = false;
-			}
+		}else{
+			isSmallest = true;
+			showSpheresToggle = changeType == "slow" ? false : true;
+		}
 
-			if(isSmallest && sphereRadius < 50){
-				sphereRadius += 5;
-			}else if(isSmallest && sphereRadius >= 50){
-				allowChange = false;
-				animationIsDone = true;
-				isSmallest = false;
-			}
-		}else if(changeType == "fast"){
-			if(sphereRadius > 10 && isSmallest === false){
-				sphereRadius -= 5;
-			}else{
-				isSmallest = true;
-				showSpheresToggle = true;
-			}
-
-			if(isSmallest && sphereRadius < 50){
-				sphereRadius += 5;
-			}else if(isSmallest && sphereRadius >= 50){
-				allowChange = false;
-				animationIsDone = true;
-				isSmallest = false;
-			}
+		if(isSmallest && sphereRadius < 50){
+			sphereRadius += 5;
+		}else if(isSmallest && sphereRadius >= 50){
+			allowChange = false;
+			isSmallest = false;
 		}
 	}
 	lastMode = mode;
