@@ -188,7 +188,7 @@ function setup() {
 		let gradientArray = gradientColorArrayGenerator(random(2, 5));
 		sceneObjects.push(createGradientTexture(100, 100, gradientArray));
 	}
-	for(let i = 0; i < 5; i++){
+	for(let i = 0; i < 7; i++){
 		let gradientArray = gradientColorArrayGenerator(random(4, 10));
 		sceneObjectsTwo.push(createGradientTexture(100, 100, gradientArray));
 	}
@@ -267,6 +267,24 @@ let objectRotation = 0;
 let rotationSpeed = 0.001;
 let rotationBlurSpeed = 0.01;
 
+let sphereRadius = 50;
+
+let cylinderRadius = 15;
+
+let isInTransformation = false;
+let showSpheresToggle = true;
+
+let direction = true;
+let isSmallest = false;
+let firstAnimation = true;
+
+//
+let mode = "slow";
+let lastMode = mode;
+let allowChange = false;
+let animationIsDone = true;
+let changeType;
+
 function draw() {
 	//shader(myShader);
 	background("#d9d6d3");
@@ -281,13 +299,67 @@ function draw() {
 	data.refresh();
 	//console.log(data.sound, data.dimensions, data.altitude, data.longitude, data.latitude, data.salt);
 
-	let sphereRadius = 50;
 
-	let cylinderRadius = 15;
 		
 	let R_Sphere = sphereRadius / sin(PI / sceneObjects.length);
 
-	if(data.sound < 0.5){
+	if(data.sound >= 0.7){
+		//direction = true;
+		mode = "fast";
+	}else{
+		//direction = false;
+		mode = "slow";
+	}
+
+	if(mode !== lastMode){
+		if(allowChange === false){
+			if(lastMode == "slow"){
+				changeType = "slow";
+			}else if(lastMode == "fast"){
+				changeType = "fast";
+			}
+		}
+		allowChange = true;
+	}
+
+	// Fires when change is permitted and the animation is done
+	if(allowChange && animationIsDone){
+		if(changeType == "slow"){
+			if(sphereRadius > 10 && isSmallest === false){
+				sphereRadius -= 5;
+			}else{
+				isSmallest = true;
+				showSpheresToggle = false;
+			}
+
+			if(isSmallest && sphereRadius < 50){
+				sphereRadius += 5;
+			}else if(isSmallest && sphereRadius >= 50){
+				allowChange = false;
+				animationIsDone = true;
+				isSmallest = false;
+			}
+		}else if(changeType == "fast"){
+			if(sphereRadius > 10 && isSmallest === false){
+				sphereRadius -= 5;
+			}else{
+				isSmallest = true;
+				showSpheresToggle = true;
+			}
+
+			if(isSmallest && sphereRadius < 50){
+				sphereRadius += 5;
+			}else if(isSmallest && sphereRadius >= 50){
+				allowChange = false;
+				animationIsDone = true;
+				isSmallest = false;
+			}
+		}
+	}
+	lastMode = mode;
+
+
+	if(showSpheresToggle){
 		sceneObjects.forEach((obj, i)=> {
 			let angleSphere = TWO_PI * i / sceneObjects.length + objectRotation;
 			let x = R_Sphere * cos(angleSphere);
@@ -297,7 +369,7 @@ function draw() {
 			translate(x, y, 0);
 			rotateZ(angleSphere);
 			texture(obj);
-			sphere(50, 50, 50);
+			sphere(sphereRadius, 50, 50);
 			pop();
 		});
 	}else{
@@ -305,15 +377,16 @@ function draw() {
 			let angleCylinder = TWO_PI * i / (sceneObjectsTwo.length * 2) + objectRotation;
 
 			push();
-			translate(0, 0, i * (cylinderRadius * 2));
-			rotateZ(angleCylinder);
+			translate(0, 0, i * -(cylinderRadius * 2));
+			rotateZ(angleCylinder * (i + 1));
+			//rotateZ(angleCylinder);
 			texture(obj);
 			// Match length of cylinder to outer most part of spheres
-			cylinder(cylinderRadius, (R_Sphere * 2) + sphereRadius, 50);
+			cylinder(cylinderRadius, (R_Sphere * 2) + (sphereRadius * 2), 50);
 			pop();
 		});
 	}
 
 	blurRotation += rotationBlurSpeed;
-	objectRotation += rotationSpeed + (data.sound / 15);
+	objectRotation += rotationSpeed + (data.sound / 45);
 }
