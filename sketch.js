@@ -254,40 +254,51 @@ function createGradientTexture(w = 100, h = 100, colors){
 	return cT;
 }
 
-
-
 // wenn leise = kreise langsam drehend
 // wenn lauter = viele Stangen voreinander
 // drehbewegung an Lautstärke koppeln
 // farbe an Lautstärke koppeln
 
+/** @type {Number} */
 let blurRotation = 0;
+
+/** @type {Number} */
 let objectRotation = 0;
 
+/** @type {Number} */
 let rotationSpeed = 0.001;
+
+/** @type {Number} */
 let rotationBlurSpeed = 0.01;
 
-let sphereRadius = 50;
+/** @type {Number} - Number used in animation for scaling all objects */
+let objectScaling = 50;
 
 let cylinderRadius = 15;
 
+/** @type {boolean} - Toggle between sphere and cylinder display */
 let showSpheresToggle = true;
 
+/** @type {boolean} - Stores breaking point in scaling animation */
 let isSmallest = false;
 
-//
+/** @type {"slow"|"fast"} - Stores current mode the objects are spinning in */
 let mode = "slow";
+
+/** @type {"slow"|"fast"} - Stores the last mode the objects were spinning in */
 let lastMode = mode;
+
+/** @type {boolean} - Is true when scaling animation is permitted and animating, false when done */
 let allowChange = false;
+
+/** @type {"slow"|"fast"} - Type of animation, "slow" = from slow to fast, "fast" = from fast to slow */
 let changeType;
 
 function draw() {
-	//shader(myShader);
 	background("#d9d6d3");
-	orbitControl();
+	//orbitControl();
 
 	// Rotate blurs around their position
-	let radi = 50;
 	blurs.forEach(el => {
 		el.x(el.initXPos + 50 * cos(blurRotation)).y(el.initYPos + 50 * sin(blurRotation));
 	})
@@ -295,7 +306,8 @@ function draw() {
 	data.refresh();
 	//console.log(data.sound, data.dimensions, data.altitude, data.longitude, data.latitude, data.salt);
 		
-	let R_Sphere = sphereRadius / sin(PI / sceneObjects.length);
+	/** @type {Number} - Radius of animated object based on amount of objects in scene */
+	let R_Object = objectScaling / sin(PI / sceneObjects.length);
 
 	if(data.sound >= 0.7){
 		mode = "fast";
@@ -305,27 +317,29 @@ function draw() {
 
 	if(mode !== lastMode){
 		if(allowChange === false){
-			if(lastMode == "slow"){
+			if(lastMode === "slow"){
 				changeType = "slow";
-			}else if(lastMode == "fast"){
+			}else if(lastMode === "fast"){
 				changeType = "fast";
 			}
 		}
 		allowChange = true;
 	}
 
-	// Fires when change is permitted
 	if(allowChange){
-		if(sphereRadius > 10 && isSmallest === false){
-				sphereRadius -= 5;
+		if(objectScaling > 10 && isSmallest === false){
+			objectScaling -= 5;
 		}else{
+			// fires when scaling animation is the smallest and the shown
+			// objects (spheres or cylinders) shall be switched
 			isSmallest = true;
-			showSpheresToggle = changeType == "slow" ? false : true;
+			showSpheresToggle = changeType === "slow" ? false : true;
 		}
 
-		if(isSmallest && sphereRadius < 50){
-			sphereRadius += 5;
-		}else if(isSmallest && sphereRadius >= 50){
+		if(isSmallest && objectScaling < 50){
+			objectScaling += 5;
+		}else if(isSmallest && objectScaling >= 50){
+			// fires when the whole animation cycle is done
 			allowChange = false;
 			isSmallest = false;
 		}
@@ -336,14 +350,14 @@ function draw() {
 	if(showSpheresToggle){
 		sceneObjects.forEach((obj, i)=> {
 			let angleSphere = TWO_PI * i / sceneObjects.length + objectRotation;
-			let x = R_Sphere * cos(angleSphere);
-			let y = R_Sphere * sin(angleSphere);
+			let x = R_Object * cos(angleSphere);
+			let y = R_Object * sin(angleSphere);
 
 			push();
 			translate(x, y, 0);
 			rotateZ(angleSphere);
 			texture(obj);
-			sphere(sphereRadius, 50, 50);
+			sphere(objectScaling, 50, 50);
 			pop();
 		});
 	}else{
@@ -353,10 +367,9 @@ function draw() {
 			push();
 			translate(0, 0, i * -(cylinderRadius * 2));
 			rotateZ(angleCylinder * (i + 1));
-			//rotateZ(angleCylinder);
 			texture(obj);
 			// Match length of cylinder to outer most part of spheres
-			cylinder(cylinderRadius, (R_Sphere * 2) + (sphereRadius * 2), 50);
+			cylinder(cylinderRadius, (R_Object * 2) + (objectScaling * 2), 50);
 			pop();
 		});
 	}
