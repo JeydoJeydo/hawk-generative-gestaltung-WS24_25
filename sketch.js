@@ -140,20 +140,19 @@ class Blur {
 
 		document.querySelector("#canvas-container").insertBefore(this.elem, this.elem.nextSilbling);
 
-		this.elem.style.left = this.xPos - this.dimensions / 2 + "px";
-		this.elem.style.top = this.yPos - this.dimensions / 2 + "px";
+		this.elem.style.transform = `translate(${this.xPos - this.dimensions / 2}px, ${this.yPos - this.dimensions / 2}px)`;
 		this.elem.style.width = this.dimensions + "px";
 		this.elem.style.height = this.dimensions + "px";
 		this.elem.style.backdropFilter = `blur(${this.intensity}px)`;
 	}
 	x(x) {
 		this.xPos = x;
-		this.elem.style.left = this.xPos - this.dimensions / 2 + "px";
+		this.elem.style.transform = `translate(${this.xPos - this.dimensions / 2}px, ${this.yPos - this.dimensions / 2}px)`;
 		return this;
 	}
 	y(y) {
 		this.yPos = y;
-		this.elem.style.top = this.yPos - this.dimensions / 2 + "px";
+		this.elem.style.transform = `translate(${this.xPos - this.dimensions / 2}px, ${this.yPos - this.dimensions / 2}px)`;
 		return this;
 	}
 	setIntensity(intens) {
