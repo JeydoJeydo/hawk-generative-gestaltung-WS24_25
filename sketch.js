@@ -7,6 +7,13 @@ class Data {
 	// ABSOLUTE ORIENTATION
 	absoluteOrientation = undefined;
 
+	orientationX = 0;
+	orientationY = 0;
+	orientationZ = 0;
+	#current_orientationX = 0;
+	#current_orientationY = 0;
+	#current_orientationZ = 0;
+
 	// SOUND
 	sound = undefined;
 	#sound_mic = undefined;
@@ -43,8 +50,22 @@ class Data {
 		this.#initSalt();
 	}
 
-	#initAbsoluteOrientation() {}
-	#getAbsoluteOrientation() {}
+	#initAbsoluteOrientation() {
+		try{
+			window.addEventListener("deviceorientation", (e) => {
+				this.#current_orientationX = e.beta;
+				this.#current_orientationY = e.gamma;
+				this.#current_orientationZ = e.alpha;
+			}, true);
+		}catch(e){
+			throw new Error("Error while initializing device orientation:", e);
+		}
+	}
+	#getAbsoluteOrientation() {
+		this.orientationX = this.#current_orientationX;
+		this.orientationY = this.#current_orientationY;
+		this.orientationZ = this.#current_orientationZ;
+	}
 
 	#initSound() {
 		try {
@@ -52,7 +73,7 @@ class Data {
 			this.#sound_mic.start();
 			this.#sound_mic.disconnect();
 		} catch (e) {
-			throw new Error(e);
+			throw new Error("Error while initializing sound:", e);
 		}
 	}
 	#getSound() {

@@ -1,18 +1,23 @@
-<!DOCTYPE >
+<!DOCTYPE>
 <html lang="en">
-	<head>
-		<meta charset="utf-8" />
-		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-		<title>Sketch</title>
-		<link rel="stylesheet" type="text/css" href="style.css" />
-		<script src="libraries/p5.min.js"></script>
-		<script src="libraries/p5.sound.min.js"></script>
-	</head>
 
-	<body>
-		<div id="canvas-container">
-			<div class="blur-field initial-blur"></div>
-		</div>
-		<script src="sketch.js"></script>
-	</body>
+<head>
+	<meta charset="utf-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+	<title>Sketch</title>
+	<link rel="stylesheet" type="text/css" href="style.css" />
+	<script src="libraries/p5.min.js"></script>
+	<script src="libraries/p5.sound.min.js"></script>
+</head>
+
+<body>
+	<div id="canvas-container">
+		<div class="blur-field initial-blur"></div>
+	</div>
+	<div id="slider">
+		<input type="range" min="0" max="100" value="50" id="audioRanger" />
+	</div>
+	<script src="sketch.js"></script>
+</body>
+
 </html>
