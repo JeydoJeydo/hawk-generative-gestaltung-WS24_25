@@ -1,6 +1,19 @@
 body {
 	margin: 0;
 	overflow: hidden;
+	background-color: rgb(217, 214, 211);
+	height: 100%;
+	position: relative;
+}
+
+* {
+	margin: 0;
+	overflow: hidden;
+}
+
+p,
+button {
+	font-family: sans-serif;
 }
 
 #canvas-container {
@@ -23,8 +36,61 @@ body {
 	color: white;
 	cursor: pointer;
 	text-align: center;
+	pointer-events: none;
 }
 
 .initial-blur {
 	display: none !important;
+}
+
+div#interacter {
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	transform: translate(-50%, -50%);
+	width: calc(100vw - 20px);
+	height: calc(100vh - 20px);
+	max-width: 400px;
+	max-height: 400px;
+	background-color: rgba(217, 214, 211, 0.95);
+	border: 1px solid rgba(0, 0, 0, 0.1);
+	border-radius: 10px;
+	display: flex;
+	flex-direction: column;
+	padding: 10px;
+	box-sizing: border-box;
+}
+
+div#interacter-body {
+	flex-grow: 1;
+	flex-shrink: 0;
+	overflow-y: scroll;
+	display: flex;
+	flex-direction: column;
+	gap: 10px;
+}
+
+div#interacter-body>section:first-child {
+	padding-bottom: 10px;
+	border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+div#interacter-body>section>p>span {
+	font-style: italic;
+	font-weight: bold;
+}
+
+p#interacter-header {
+	font-size: 1.5rem;
+	margin-bottom: 10px;
+}
+
+button#interacter-accept {
+	flex-shrink: 0;
+	padding: 15px 0;
+	text-transform: uppercase;
+	border: none;
+	background-color: rgba(255, 255, 255, 0.8);
+	border-radius: 3px;
+	cursor: pointer;
 }

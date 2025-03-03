@@ -4,7 +4,9 @@
  */
 
 
+
 class Data {
+	isInit = false;
 	// ABSOLUTE ORIENTATION
 	absoluteOrientation = undefined;
 
@@ -16,24 +18,24 @@ class Data {
 	#current_orientationZ = 0;
 
 	// SOUND
-	sound = undefined;
+	sound = 0;
 	#sound_mic = undefined;
 	#sound_process = [];
 
 	// ACCELERATION
-	acceleration = undefined;
+	acceleration = 0;
 
 	// ALTITUDE
-	altitude = undefined;
-	#current_altitude = undefined;
+	altitude = 0;
+	#current_altitude = 0;
 
 	// LATITUDE
-	latitude = undefined;
-	#current_latitude = undefined;
+	latitude = 0;
+	#current_latitude = 0;
 
 	// LONGITUDE
-	longitude = undefined;
-	#current_longitude = undefined;
+	longitude = 0;
+	#current_longitude = 0;
 
 	// DIMENSIONS
 	dimensions = undefined;
@@ -43,6 +45,7 @@ class Data {
 	salt = undefined;
 
 	initSensors() {
+		this.isInit = true;
 		this.#initAbsoluteOrientation();
 		this.#initSound();
 		this.#initAcceleration();
@@ -79,8 +82,9 @@ class Data {
 	}
 	#getSound() {
 		let currentLevel = this.#sound_mic.getLevel();
-		console.log(currentLevel);
-		document.querySelector("#debuggerp").innerHTML = currentLevel;
+		let levelAdjust = document.querySelector("#audioRanger").value / 100;
+		this.#sound_mic.amp(levelAdjust);
+		//document.querySelector("#debuggerp").innerHTML = `${currentLevel} / ${levelAdjust}`;
 
 		this.#sound_process.push(currentLevel);
 		const LENGTH_OF_AVERAGE = 80;
@@ -202,7 +206,6 @@ function setup() {
 	noStroke();
 
 	data = new Data();
-	data.initSensors();
 
 	blurs.push(new Blur((width / 6) * 2, (height / 6) * 2, (width / 6) * 3, 10));
 	blurs.push(new Blur((width / 6) * 4, (height / 6) * 4, (width / 6) * 3, 5));
@@ -221,6 +224,22 @@ function setup() {
 		sceneCylinders.push(createGradientTexture(100, 100, gradientArray));
 	}
 }
+
+function setupAnimation(){
+	data.initSensors();
+}
+
+/**
+ * Get an interaction from the user to start the animation.
+ * This is needed bacause some security policys like the AudioContext
+ * requires an interaction before being able to play or get audio.
+ */
+document.querySelector("#interacter-accept").addEventListener("click", () => {
+	document.querySelector("#interacter").style.display = "none";
+	userStartAudio();
+	setupAnimation();
+});
+
 
 /**
  * Generate an array of random picked colors
@@ -290,6 +309,18 @@ function createGradientTexture(w = 100, h = 100, colors) {
 	return cT;
 }
 
+/**
+ * Give the option to override the sound to interact better with it
+ */
+let overrideSound = false;
+function touchMoved(){
+	console.log("touch");
+	overrideSound = true;
+}
+function touchEnded(){
+	overrideSound = false;
+}
+
 /** @type {Number} */
 let blurRotation = 0;
 
@@ -347,13 +378,17 @@ function draw() {
 		el.x(el.initXPos + 50 * cos(blurRotation)).y(el.initYPos + 50 * sin(blurRotation));
 	});
 
-	data.refresh();
+	if(data && data.isInit){
+		console.log("refresh");
+		data.refresh();
+	} 
+
 	//console.log(data.sound, data.dimensions, data.altitude, data.longitude, data.latitude, data.salt);
 
 	/** @type {Number} - Radius of animated object based on amount of objects in scene */
 	let R_Object = objectScaling / sin(PI / sceneSpheres.length);
 
-	if (data.sound >= 0.7) {
+	if (data.sound >= 0.7 || overrideSound) {
 		mode = "fast";
 	} else {
 		mode = "slow";
@@ -362,13 +397,6 @@ function draw() {
 	if (mode !== lastMode) {
 		if (allowChange === false) {
 			changeType = lastMode === "slow" ? "slow" : "fast";
-			/*
-			if(lastMode === "slow"){
-				changeType = "slow";
-			}else if(lastMode === "fast"){
-				changeType = "fast";
-			}
-			*/
 		}
 		allowChange = true;
 	}
@@ -396,11 +424,14 @@ function draw() {
 	if (showSpheresToggle) {
 		sceneSpheres.forEach((obj, i) => {
 			let angleSphere = (TWO_PI * i) / sceneSpheres.length + objectRotation;
+
 			let x = R_Object * cos(angleSphere);
 			let y = R_Object * sin(angleSphere);
 
+			let translateZ = data.orientationX + data.orientationY;
+
 			push();
-			translate(x, y, 0);
+			translate(x, y, translateZ);
 			rotateZ(angleSphere);
 			texture(obj);
 			sphere(objectScaling, OBJECT_QUALITY, OBJECT_QUALITY);
