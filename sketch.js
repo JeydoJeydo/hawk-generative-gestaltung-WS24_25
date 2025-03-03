@@ -3,6 +3,7 @@
  * Author: Silas Hering, 901107
  */
 
+
 class Data {
 	// ABSOLUTE ORIENTATION
 	absoluteOrientation = undefined;
@@ -78,6 +79,8 @@ class Data {
 	}
 	#getSound() {
 		let currentLevel = this.#sound_mic.getLevel();
+		console.log(currentLevel);
+		document.querySelector("#debuggerp").innerHTML = currentLevel;
 
 		this.#sound_process.push(currentLevel);
 		const LENGTH_OF_AVERAGE = 80;
@@ -406,9 +409,12 @@ function draw() {
 	} else {
 		sceneCylinders.forEach((obj, i) => {
 			let angleCylinder = (TWO_PI * i) / (sceneCylinders.length * 2) + objectRotation;
+			
+			let translateX = data.orientationX / 8 * i;
+			let translateZ = data.orientationY / 8 * i;
 
 			push();
-			translate(0, 0, i * -(cylinderRadius * 2));
+			translate(translateZ, translateX, i * -(cylinderRadius * 2));
 			rotateZ(angleCylinder * (i + 1));
 			texture(obj);
 			// Match length of cylinder to outer most part of spheres
