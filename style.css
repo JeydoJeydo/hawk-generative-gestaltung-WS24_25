@@ -94,3 +94,22 @@ button#interacter-accept {
 	border-radius: 3px;
 	cursor: pointer;
 }
+
+div.info {
+	position: fixed;
+	bottom: 20px;
+	left: 50%;
+	transform: translateX(-50%);
+	opacity: 0.25;
+}
+
+div.info>section {
+	display: flex;
+	justify-content: center;
+}
+
+div.info>section>button {
+	all: unset;
+	padding: 10px;
+	cursor: pointer;
+}

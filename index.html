@@ -14,10 +14,6 @@
 	<div id="canvas-container">
 		<div class="blur-field initial-blur"></div>
 	</div>
-	<div id="slider">
-		<input type="range" min="0" max="300" value="50" id="audioRanger" />
-		<p id="debuggerp">00</p>
-	</div>
 	<div id="interacter">
 		<div id="interacter-body">
 			<section>
@@ -26,12 +22,23 @@
 			</section>
 			<section>
 				<p>Verändere die <span>Umgebungslautstärke</span>, <span>Device-ausrichtung</span>,
-					<span>Displaygröße</span> oder
+					<span>Displaygröße</span>, bewege den <span>Finger auf dem Display</span> oder
 					<span>lade die Seite neu</span>, um die Animation zu verändern.
 				</p>
 			</section>
 		</div>
 		<button id="interacter-accept">okay</button>
+	</div>
+	<div class="info">
+		<input type="range" min="0" max="300" value="50" id="audioRanger" />
+		<section>
+			<button id="info-btn">
+				<img src="./assets/info.svg" alt="info" />
+			</button>
+			<button id="reload-btn">
+				<img src="./assets/reload.svg" alt="reload" />
+			</button>
+		</section>
 	</div>
 	<script src="sketch.js"></script>
 </body>

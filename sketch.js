@@ -207,6 +207,14 @@ function setup() {
 
 	data = new Data();
 
+	populateAnimation();	
+}
+
+/**
+ * Adds rendered objects to the scene and generates
+ * gradients for them.
+ */
+function populateAnimation(){
 	blurs.push(new Blur((width / 6) * 2, (height / 6) * 2, (width / 6) * 3, 10));
 	blurs.push(new Blur((width / 6) * 4, (height / 6) * 4, (width / 6) * 3, 5));
 	blurs.push(new Blur((width / 6) * 3.5, (height / 6) * 3, (width / 6) * 2, 3));
@@ -225,8 +233,10 @@ function setup() {
 	}
 }
 
-function setupAnimation(){
-	data.initSensors();
+function resetAnimationState(){
+	sceneSpheres = [];
+	sceneCylinders = [];
+	blurs = [];
 }
 
 /**
@@ -237,9 +247,24 @@ function setupAnimation(){
 document.querySelector("#interacter-accept").addEventListener("click", () => {
 	document.querySelector("#interacter").style.display = "none";
 	userStartAudio();
-	setupAnimation();
+	data.initSensors();
 });
 
+/**
+ * Show entry info popup.
+ */
+document.querySelector("#info-btn").addEventListener("click", () => {
+	document.querySelector("#interacter").style.display = "flex";
+});
+
+/**
+ * Enable the user to reload the animation without reloading the
+ * full website.
+ */
+document.querySelector("#reload-btn").addEventListener("click", () => {
+	resetAnimationState();
+	populateAnimation();
+});
 
 /**
  * Generate an array of random picked colors
