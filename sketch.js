@@ -118,10 +118,44 @@ class Data {
 			throw new Error("Geolocation is not supported");
 		}
 	}
+	/**
+	 * Convert the geographic coordinates to meters using the mercator projection
+	 * {@link https://de.wikipedia.org/wiki/Mercator-Projektion}
+	 */
+	#latLonToMeters(lat, lon) {
+		const R = 6378137; // Earth's radius in meters (WGS84)
+		const x = R * lon * Math.PI / 180;
+		const y = R * Math.log(Math.tan(Math.PI / 4 + lat * Math.PI / 360));
+		return { x, y };
+	}
+
+	/**
+	 * Divide the given coordinates into tiles
+	 */
+	#getTile(lat, lon, tileSize = 10) {
+		const { x, y } = this.#latLonToMeters(lat, lon);
+		const tileX = Math.floor(x / tileSize);
+		const tileY = Math.floor(y / tileSize);
+		return { tileX, tileY };
+	}
+
+	/**
+	 * Map different colors to specific map tiles
+	 */
+	#getColorForTile(lat, lon, tileSize = 10) {
+		const { tileX, tileY } = this.#getTile(lat, lon, tileSize);
+		// Define a palette of colors. You can expand this list as needed.
+		const colors = ["red", "blue", "green", "yellow", "orange", "purple", "pink", "cyan", "magenta"];
+		// Create a simple hash from the tile coordinates.
+		const index = Math.abs(tileX * 31 + tileY) % colors.length;
+		return colors[index];
+	}
 	#getPositionData() {
 		this.altitude = this.#current_altitude;
 		this.latitude = this.#current_latitude;
 		this.longitude = this.#current_longitude;
+		const TILE_SIZE = 5;
+		this.tileId = this.#getColorForTile(this.#current_altitude, this.#current_latitude, TILE_SIZE);
 	}
 
 	#initDeviceDimensions() {
@@ -398,6 +432,7 @@ let allowChange = false;
 /** @type {"slow"|"fast"} - Type of animation, "slow" = from slow to fast, "fast" = from fast to slow */
 let changeType;
 
+
 function draw() {
 	const BACKGROUND_COLOR = "#d9d6d3";
 	background(BACKGROUND_COLOR);
@@ -408,12 +443,15 @@ function draw() {
 		el.x(el.initXPos + 50 * cos(blurRotation)).y(el.initYPos + 50 * sin(blurRotation));
 	});
 
+	console.log("test:", getColorForTile(data.latitude, data.longitude, 10));
+
 	if(data && data.isInit){
 		console.log("refresh");
 		data.refresh();
 	} 
 
 	//console.log(data.sound, data.dimensions, data.altitude, data.longitude, data.latitude, data.salt);
+	console.log(data.latitude, data.longitude);
 
 	/** @type {Number} - Radius of animated object based on amount of objects in scene */
 	let R_Object = objectScaling / sin(PI / sceneSpheres.length);
