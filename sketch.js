@@ -1,15 +1,12 @@
 /**
- * Kurs: Generative Gesltatung, Semesterabgabe 2025
+ * Kurs: Generative Gesltatung - Semesterabgabe 2025
  * Author: Silas Hering, 901107
  */
 
-
-
 class Data {
 	isInit = false;
-	// ABSOLUTE ORIENTATION
-	absoluteOrientation = undefined;
 
+	// ORIENTATION 
 	orientationX = 0;
 	orientationY = 0;
 	orientationZ = 0;
@@ -22,9 +19,6 @@ class Data {
 	#sound_mic = undefined;
 	#sound_process = [];
 
-	// ACCELERATION
-	acceleration = 0;
-
 	// ALTITUDE
 	altitude = 0;
 	#current_altitude = 0;
@@ -36,7 +30,6 @@ class Data {
 	// LONGITUDE
 	longitude = 0;
 	#current_longitude = 0;
-
 	tileId = 0;
 
 	// DIMENSIONS
@@ -106,25 +99,13 @@ class Data {
 					this.#current_altitude = position.coords.altitude; // Is null on non-mobile devices
 					this.#current_latitude = position.coords.latitude;
 					this.#current_longitude = position.coords.longitude;
-					document.querySelector("#audioAmp").innerHTML = `${this.#current_latitude} / ${this.#current_longitude}`;
 				},
 				(error) => {
 					alert("error");
 					throw new Error(error);
-				}, {enableHighAccuracy: true}
-			);
-			/*
-			let location = navigator.geolocation.getCurrentPosition(
-				(position) => {
-					this.#current_altitude = position.coords.altitude; // Is null on non-mobile devices
-					this.#current_latitude = position.coords.latitude;
-					this.#current_longitude = position.coords.longitude;
 				},
-				(error) => {
-					throw new Error(error);
-				}
+				{ enableHighAccuracy: true }
 			);
-			*/
 		} else {
 			throw new Error("Geolocation is not supported");
 		}
@@ -151,23 +132,22 @@ class Data {
 	}
 
 	/**
-	 * Map different colors to specific map tiles
+	 * Map different tileId's to specific map tiles
 	 */
-	#getColorForTile(lat, lon, tileSize = 10) {
+	#getIdForTile(lat, lon, tileSize = 10) {
 		const { tileX, tileY } = this.#getTile(lat, lon, tileSize);
-		//const colors = ["red", "blue", "green", "yellow", "orange", "purple", "pink", "cyan", "magenta"];
-		const colors = [5, 1, 10, 6, 9, 2, 4, 8, 3, 7, 4];
+		const tileIds = [5, 1, 10, 6, 9, 2, 4, 8, 3, 7, 4];
 		// Create a simple hash from the tile coordinates.
-		const index = Math.abs(tileX * 31 + tileY) % colors.length;
+		const index = Math.abs(tileX * 31 + tileY) % tileIds.length;
 		//document.querySelector("#audioAmp").innerHTML = `${index} / ${data.latitude} / ${data.longitude}`;
-		return colors[index];
+		return tileIds[index];
 	}
 	#getPositionData() {
 		this.altitude = this.#current_altitude;
 		this.latitude = this.#current_latitude;
 		this.longitude = this.#current_longitude;
-		const TILE_SIZE = 5;
-		this.tileId = this.#getColorForTile(this.#current_latitude, this.#current_longitude, TILE_SIZE);
+		const TILE_SIZE = 10;
+		this.tileId = this.#getIdForTile(this.#current_latitude, this.#current_longitude, TILE_SIZE);
 	}
 
 	#initDeviceDimensions() {
@@ -251,8 +231,6 @@ function setup() {
 	noStroke();
 
 	data = new Data();
-
-	//populateAnimation();	
 }
 
 /**
@@ -268,7 +246,6 @@ function populateAnimation(){
 	const AMOUNT_OF_SPHERES = 7;
 	const AMOUNT_OF_CYLINDERS = 7;
 
-	console.log(data.tileId);
 	for (let i = 0; i < AMOUNT_OF_SPHERES; i++) {
 		let gradientArray = gradientColorArrayGenerator(random(2, 5), data.tileId);
 		sceneSpheres.push(createGradientTexture(100, 100, gradientArray));
@@ -318,6 +295,7 @@ document.querySelector("#interacter-accept").addEventListener("click", () => {
 			if(data.latitude === 0 && timeoutIndex < TIMEOUT){
 				awaitPosition();
 			}else{
+				console.log("reset");
 				resetAnimationState();
 				populateAnimation();	
 				return;
@@ -410,7 +388,6 @@ function createGradientTexture(w = 100, h = 100, colors) {
  */
 let overrideSound = false;
 function touchMoved(){
-	console.log("touch");
 	overrideSound = true;
 }
 function touchEnded(){
@@ -535,8 +512,8 @@ function draw() {
 		sceneCylinders.forEach((obj, i) => {
 			let angleCylinder = (TWO_PI * i) / (sceneCylinders.length * 2) + objectRotation;
 			
-			let translateX = data.orientationX / 8 * i;
-			let translateZ = data.orientationY / 8 * i;
+			let translateX = data.orientationX / 6 * i;
+			let translateZ = data.orientationY / 6 * i;
 
 			push();
 			translate(translateZ, translateX, i * -(cylinderRadius * 2));
