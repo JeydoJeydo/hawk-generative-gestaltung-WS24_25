@@ -37,6 +37,8 @@ class Data {
 	longitude = 0;
 	#current_longitude = 0;
 
+	tileId = 0;
+
 	// DIMENSIONS
 	dimensions = undefined;
 
@@ -84,7 +86,6 @@ class Data {
 		let currentLevel = this.#sound_mic.getLevel();
 		let levelAdjust = document.querySelector("#audioRanger").value / 100;
 		this.#sound_mic.amp(levelAdjust);
-		//document.querySelector("#debuggerp").innerHTML = `${currentLevel} / ${levelAdjust}`;
 
 		this.#sound_process.push(currentLevel);
 		const LENGTH_OF_AVERAGE = 80;
@@ -144,8 +145,8 @@ class Data {
 	 */
 	#getColorForTile(lat, lon, tileSize = 10) {
 		const { tileX, tileY } = this.#getTile(lat, lon, tileSize);
-		// Define a palette of colors. You can expand this list as needed.
-		const colors = ["red", "blue", "green", "yellow", "orange", "purple", "pink", "cyan", "magenta"];
+		//const colors = ["red", "blue", "green", "yellow", "orange", "purple", "pink", "cyan", "magenta"];
+		const colors = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
 		// Create a simple hash from the tile coordinates.
 		const index = Math.abs(tileX * 31 + tileY) % colors.length;
 		return colors[index];
@@ -156,6 +157,7 @@ class Data {
 		this.longitude = this.#current_longitude;
 		const TILE_SIZE = 5;
 		this.tileId = this.#getColorForTile(this.#current_altitude, this.#current_latitude, TILE_SIZE);
+		this.test = this.#getColorForTile(this.#current_altitude, this.#current_latitude, TILE_SIZE);
 	}
 
 	#initDeviceDimensions() {
@@ -241,7 +243,7 @@ function setup() {
 
 	data = new Data();
 
-	populateAnimation();	
+	//populateAnimation();	
 }
 
 /**
@@ -258,11 +260,11 @@ function populateAnimation(){
 	const AMOUNT_OF_CYLINDERS = 7;
 
 	for (let i = 0; i < AMOUNT_OF_SPHERES; i++) {
-		let gradientArray = gradientColorArrayGenerator(random(2, 5));
+		let gradientArray = gradientColorArrayGenerator(random(2, 5), data.tileId);
 		sceneSpheres.push(createGradientTexture(100, 100, gradientArray));
 	}
 	for (let i = 0; i < AMOUNT_OF_CYLINDERS; i++) {
-		let gradientArray = gradientColorArrayGenerator(random(4, 10));
+		let gradientArray = gradientColorArrayGenerator(random(4, 10), data.tileId);
 		sceneCylinders.push(createGradientTexture(100, 100, gradientArray));
 	}
 }
@@ -285,8 +287,16 @@ function resetAnimationState(){
  */
 document.querySelector("#interacter-accept").addEventListener("click", () => {
 	document.querySelector("#interacter").style.display = "none";
+
+	// p5js Web Audio policy inforing
 	userStartAudio();
+
 	data.initSensors();
+	data.refresh();
+
+	console.log("data:", data);
+
+	populateAnimation();	
 });
 
 /**
@@ -306,11 +316,12 @@ document.querySelector("#reload-btn").addEventListener("click", () => {
 });
 
 /**
- * Generate an array of random picked colors
+ * Generate an array of colors based on a tile id
  *
  * @param {Number} steps - steps the gradient will have
+ * @param {Number} tileId - id of a tile the user is located in 
  */
-function gradientColorArrayGenerator(steps) {
+function gradientColorArrayGenerator(steps, tileId) {
 	const AVAILABLE_COLORS = [
 		color("#e5b750"),
 		color("#d4632a"),
@@ -320,22 +331,15 @@ function gradientColorArrayGenerator(steps) {
 		color("#95bb5e"),
 		color("#2d1c3f"),
 	];
+	let step = Math.floor(steps);
 
-	// cap steps size
-	steps > AVAILABLE_COLORS.length ? (steps = AVAILABLE_COLORS.length) : (steps = steps);
-	steps == 1 ? (steps = 2) : (steps = steps);
-
-	// Fisher-Yates Shuffle
-	let cIndex = AVAILABLE_COLORS.length;
-	while (cIndex != 0) {
-		let randomIndex = Math.floor(Math.random() * cIndex);
-		cIndex--;
-		[AVAILABLE_COLORS[cIndex], AVAILABLE_COLORS[randomIndex]] = [AVAILABLE_COLORS[randomIndex], AVAILABLE_COLORS[cIndex]];
+	let buildColors = [];
+	for(let i = 0; i < steps; i++){
+		let wrappedIndex = (tileId + i) % AVAILABLE_COLORS.length;
+		buildColors.push(AVAILABLE_COLORS[wrappedIndex]);
 	}
 
-	let cappedColors = AVAILABLE_COLORS.splice(0, steps);
-
-	return cappedColors;
+	return buildColors;
 }
 
 /**
@@ -443,15 +447,9 @@ function draw() {
 		el.x(el.initXPos + 50 * cos(blurRotation)).y(el.initYPos + 50 * sin(blurRotation));
 	});
 
-	console.log("test:", getColorForTile(data.latitude, data.longitude, 10));
-
 	if(data && data.isInit){
-		console.log("refresh");
 		data.refresh();
 	} 
-
-	//console.log(data.sound, data.dimensions, data.altitude, data.longitude, data.latitude, data.salt);
-	console.log(data.latitude, data.longitude);
 
 	/** @type {Number} - Radius of animated object based on amount of objects in scene */
 	let R_Object = objectScaling / sin(PI / sceneSpheres.length);
