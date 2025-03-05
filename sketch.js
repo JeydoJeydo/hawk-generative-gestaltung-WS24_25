@@ -234,6 +234,11 @@ function populateAnimation(){
 }
 
 function resetAnimationState(){
+	document.querySelectorAll(".blur-field").forEach(el => {
+		if(!el.classList.contains("initial-blur")){
+			el.remove();
+		}
+	});
 	sceneSpheres = [];
 	sceneCylinders = [];
 	blurs = [];
