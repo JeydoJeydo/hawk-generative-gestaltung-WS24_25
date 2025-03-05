@@ -50,8 +50,7 @@ class Data {
 		this.isInit = true;
 		this.#initAbsoluteOrientation();
 		this.#initSound();
-		this.#initAcceleration();
-		this.#initAltitude();
+		this.#initPosition();
 		this.#initDeviceDimensions();
 		this.#initSalt();
 	}
@@ -100,12 +99,22 @@ class Data {
 		this.sound = roundedAverage;
 	}
 
-	#initAcceleration() {}
-	#getAcceleration() {}
-
-	#initAltitude() {
+	#initPosition() {
 		if ("geolocation" in navigator) {
 			let watchListener = navigator.geolocation.watchPosition(
+				(position) => {
+					this.#current_altitude = position.coords.altitude; // Is null on non-mobile devices
+					this.#current_latitude = position.coords.latitude;
+					this.#current_longitude = position.coords.longitude;
+					document.querySelector("#audioAmp").innerHTML = `${this.#current_latitude} / ${this.#current_longitude}`;
+				},
+				(error) => {
+					alert("error");
+					throw new Error(error);
+				}, {enableHighAccuracy: true}
+			);
+			/*
+			let location = navigator.geolocation.getCurrentPosition(
 				(position) => {
 					this.#current_altitude = position.coords.altitude; // Is null on non-mobile devices
 					this.#current_latitude = position.coords.latitude;
@@ -115,6 +124,7 @@ class Data {
 					throw new Error(error);
 				}
 			);
+			*/
 		} else {
 			throw new Error("Geolocation is not supported");
 		}
@@ -146,9 +156,10 @@ class Data {
 	#getColorForTile(lat, lon, tileSize = 10) {
 		const { tileX, tileY } = this.#getTile(lat, lon, tileSize);
 		//const colors = ["red", "blue", "green", "yellow", "orange", "purple", "pink", "cyan", "magenta"];
-		const colors = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
+		const colors = [5, 1, 10, 6, 9, 2, 4, 8, 3, 7, 4];
 		// Create a simple hash from the tile coordinates.
 		const index = Math.abs(tileX * 31 + tileY) % colors.length;
+		//document.querySelector("#audioAmp").innerHTML = `${index} / ${data.latitude} / ${data.longitude}`;
 		return colors[index];
 	}
 	#getPositionData() {
@@ -156,8 +167,7 @@ class Data {
 		this.latitude = this.#current_latitude;
 		this.longitude = this.#current_longitude;
 		const TILE_SIZE = 5;
-		this.tileId = this.#getColorForTile(this.#current_altitude, this.#current_latitude, TILE_SIZE);
-		this.test = this.#getColorForTile(this.#current_altitude, this.#current_latitude, TILE_SIZE);
+		this.tileId = this.#getColorForTile(this.#current_latitude, this.#current_longitude, TILE_SIZE);
 	}
 
 	#initDeviceDimensions() {
@@ -180,7 +190,6 @@ class Data {
 	refresh() {
 		this.#getAbsoluteOrientation();
 		this.#getSound();
-		this.#getAcceleration();
 		this.#getPositionData();
 	}
 }
@@ -259,6 +268,7 @@ function populateAnimation(){
 	const AMOUNT_OF_SPHERES = 7;
 	const AMOUNT_OF_CYLINDERS = 7;
 
+	console.log(data.tileId);
 	for (let i = 0; i < AMOUNT_OF_SPHERES; i++) {
 		let gradientArray = gradientColorArrayGenerator(random(2, 5), data.tileId);
 		sceneSpheres.push(createGradientTexture(100, 100, gradientArray));
@@ -294,9 +304,27 @@ document.querySelector("#interacter-accept").addEventListener("click", () => {
 	data.initSensors();
 	data.refresh();
 
-	console.log("data:", data);
-
+	// load animation with default values
 	populateAnimation();	
+
+	// The geoposition needs a little time before it is loaded. 
+	// This code checks every 100ms if a position was set for 200 times.
+	// If no position is set, it times out and the default value is used.
+	let timeoutIndex = 0;
+	const TIMEOUT = 200;
+	let awaitPosition = () => {
+		setTimeout(() => {
+			timeoutIndex++;
+			if(data.latitude === 0 && timeoutIndex < TIMEOUT){
+				awaitPosition();
+			}else{
+				resetAnimationState();
+				populateAnimation();	
+				return;
+			}
+		}, 100);
+	}
+	awaitPosition();
 });
 
 /**
