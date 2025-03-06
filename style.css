@@ -121,9 +121,15 @@ div.info>input {
 	opacity: 0.4;
 }
 
-p#audioAmp {
+p#audioAmp,
+p#latlng {
 	font-size: 0.8rem;
 	color: #A09992;
+	width: 100%;
+}
+
+p#audioAmp {
+	margin-bottom: 5px;
 }
 
 div.info>section {

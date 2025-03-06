@@ -101,8 +101,7 @@ class Data {
 					this.#current_longitude = position.coords.longitude;
 				},
 				(error) => {
-					alert("error");
-					throw new Error(error);
+					throw new Error("Error while initializing geolocation:", error);
 				},
 				{ enableHighAccuracy: true }
 			);
@@ -148,6 +147,7 @@ class Data {
 		this.longitude = this.#current_longitude;
 		const TILE_SIZE = 10;
 		this.tileId = this.#getIdForTile(this.#current_latitude, this.#current_longitude, TILE_SIZE);
+		document.querySelector("#latlng").innerHTML = `lat: ${this.#current_latitude}, lng: ${this.#current_longitude}`
 	}
 
 	#initDeviceDimensions() {
@@ -218,13 +218,15 @@ class Blur {
 /** @type {any} - Stores the sensor data object */
 let data;
 
-/** @type {any[]} - Stores all spheres */
+/** @type {any[]} - Stores all scene spheres */
 let sceneSpheres = [];
 
-/** @type {any[]} - Stores all cylinders */
+/** @type {any[]} - Stores all scene cylinders */
 let sceneCylinders = [];
 
+/** @type {any[]} - Stores all scene blurs */
 let blurs = [];
+
 function setup() {
 	let canvas = createCanvas(600, 600, WEBGL);
 	canvas.parent("canvas-container");
@@ -295,7 +297,6 @@ document.querySelector("#interacter-accept").addEventListener("click", () => {
 			if(data.latitude === 0 && timeoutIndex < TIMEOUT){
 				awaitPosition();
 			}else{
-				console.log("reset");
 				resetAnimationState();
 				populateAnimation();	
 				return;
@@ -384,7 +385,8 @@ function createGradientTexture(w = 100, h = 100, colors) {
 }
 
 /**
- * Give the option to override the sound to interact better with it
+ * Give the option to override the sound determited animation
+ * between spheres and cylinders.
  */
 let overrideSound = false;
 function touchMoved(){
