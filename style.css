@@ -73,6 +73,7 @@ div#interacter {
 	flex-direction: column;
 	padding: 10px;
 	box-sizing: border-box;
+	z-index: 99;
 }
 
 div#interacter-body {

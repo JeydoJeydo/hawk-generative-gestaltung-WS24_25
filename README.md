@@ -1,3 +1,5 @@
+![banner](https://github.com/JeydoJeydo/haw-generative-gestaltung/blob/main/assets/banner.png)
+
 # Generative Gestaltung - Semesterprojekt WiSe24/25 - Silas Hering
 
 ## Aufgabestellung
@@ -28,4 +30,4 @@ Die Deviceausrichtung beeinflusst eine perspektivische Verschiebung der dargeste
 
 ## Vorgehensweise
 
-Abc...
+Ich begann die Aufgabe mit der Inspirationsfindung.  
