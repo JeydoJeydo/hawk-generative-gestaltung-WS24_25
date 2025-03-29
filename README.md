@@ -1,4 +1,4 @@
-![banner](https://github.com/JeydoJeydo/haw-generative-gestaltung/blob/main/assets/banner.png)
+![banner](https://github.com/JeydoJeydo/hawk-generative-gestaltung-WS24_25/blob/main/assets/banner.png)
 
 # Generative Gestaltung - Semesterprojekt WiSe24/25 - Silas Hering
 
