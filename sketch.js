@@ -90,6 +90,7 @@ class Data {
 		let roundedAverage = Math.round(average * 100) / 100;
 
 		this.sound = roundedAverage;
+		document.querySelector("#audio").innerHTML = `${this.sound}`
 	}
 
 	#initPosition() {

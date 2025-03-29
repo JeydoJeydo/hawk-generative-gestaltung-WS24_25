@@ -2,6 +2,32 @@
 
 # Generative Gestaltung - Semesterprojekt WiSe24/25 - Silas Hering
 
+## Running
+
+### Install dependencies
+
+```bash
+npm i
+```
+
+### Run project
+
+```bash
+npm run dev
+```
+
+Das Project über https und Netzwek laufen lassen. (Um es auf einem Handy zu sehen z.B.)
+
+```bash
+npm run host
+```
+
+### Converting to pdf
+
+```bash
+pandoc README.md -o README.pdf --from=gfm -V geometry:a4paper -V geometry:top=8mm -V geometry:bottom=8mm -V geometry:left=8mm -V geometry:right=8mm -V fontsize=12pt -V mainfont="DejaVu Sans" -V sansfont="DejaVu Sans" --pdf-engine=xelatex
+```
+
 ## Aufgabestellung
 
 _Ihr sucht Eur ein freies Thema, welches dann unter den
