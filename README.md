@@ -56,4 +56,6 @@ Die Deviceausrichtung beeinflusst eine perspektivische Verschiebung der dargeste
 
 ## Vorgehensweise
 
+Die einzelnen Arbeitsschritte können in den Commits des [Github Projekts](https://github.com/JeydoJeydo/hawk-generative-gestaltung-WS24_25/commits/main/) nachvollzogen werden.
+
 Ich begann die Aufgabe mit der Inspirationsfindung.  
