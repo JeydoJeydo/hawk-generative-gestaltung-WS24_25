@@ -2,15 +2,15 @@
 
 # Generative Gestaltung - Semesterprojekt WiSe24/25 - Silas Hering
 
-## Running
+## Installation und Ausführung
 
-### Install dependencies
+### Dependencies installieren
 
 ```bash
 npm i
 ```
 
-### Run project
+### Projekt ausführen 
 
 ```bash
 npm run dev
@@ -22,7 +22,7 @@ Das Project über https und Netzwek laufen lassen. (Um es auf einem Handy zu seh
 npm run host
 ```
 
-### Converting to pdf
+### Zum PDF konvertieren
 
 ```bash
 pandoc README.md -o README.pdf --from=gfm -V geometry:a4paper -V geometry:top=8mm -V geometry:bottom=8mm -V geometry:left=8mm -V geometry:right=8mm -V fontsize=12pt -V mainfont="DejaVu Sans" -V sansfont="DejaVu Sans" --pdf-engine=xelatex
@@ -58,4 +58,11 @@ Die Deviceausrichtung beeinflusst eine perspektivische Verschiebung der dargeste
 
 Die einzelnen Arbeitsschritte können in den Commits des [Github Projekts](https://github.com/JeydoJeydo/hawk-generative-gestaltung-WS24_25/commits/main/) nachvollzogen werden.
 
-Ich begann die Aufgabe mit der Inspirationsfindung.  
+Ich begann die Aufgabe mit der Inspirationsfindung und dem Schreiben eines Konzepts [Generative Gestaltung - Semesteraufgabe - Konzept - Silas Hering](https://www.github.com)    
+Im nächsten Schritt beschäftigte ich mich damit, eine [Klasse mit dem Namen "Data"](https://github.com/JeydoJeydo/hawk-generative-gestaltung-WS24_25/blob/7dbcf44ebc2786ea90386ba9982de82150b81f13/sketch.js#L6) zu programmieren. 
+Mithilfe dieser Klasse können alle Daten, die für das generative Projekten gebraucht werden, initializiert, aktualisiert und abgerufen werden. 
+In der Inizializierung werden z.B. Eventlistener für die Device-Position oder Audio-Input erstellt.    
+Über eine `refresh()` Funktion können alle Daten aktualisiert werden.    
+Auch gibt es eine ["Blur" Klasse](https://github.com/JeydoJeydo/hawk-generative-gestaltung-WS24_25/blob/7dbcf44ebc2786ea90386ba9982de82150b81f13/sketch.js#L178), die für die 
+verschiedenen unscharfen Bereiche zuständig ist, die über den Canvas wandern.    
+In ihr können Position, Intensität und die Größe bestimmt werden.
