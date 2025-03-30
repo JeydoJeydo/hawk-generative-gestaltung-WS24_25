@@ -58,11 +58,22 @@ Die Deviceausrichtung beeinflusst eine perspektivische Verschiebung der dargeste
 
 Die einzelnen Arbeitsschritte können in den Commits des [Github Projekts](https://github.com/JeydoJeydo/hawk-generative-gestaltung-WS24_25/commits/main/) nachvollzogen werden.
 
-Ich begann die Aufgabe mit der Inspirationsfindung und dem Schreiben eines Konzepts [Generative Gestaltung - Semesteraufgabe - Konzept - Silas Hering](https://www.github.com)    
+Ich begann die Aufgabe mit der Inspirationsfindung und dem Schreiben eines Konzepts [Generative Gestaltung - Semesteraufgabe - Konzept - Silas Hering](https://github.com/JeydoJeydo/hawk-generative-gestaltung-WS24_25/blob/main/Generative%20Gestaltung%20-%20Semesteraufgabe%20-%20Konzept%20-%20Silas%20Hering.pdf)    
 Im nächsten Schritt beschäftigte ich mich damit, eine [Klasse mit dem Namen "Data"](https://github.com/JeydoJeydo/hawk-generative-gestaltung-WS24_25/blob/7dbcf44ebc2786ea90386ba9982de82150b81f13/sketch.js#L6) zu programmieren. 
 Mithilfe dieser Klasse können alle Daten, die für das generative Projekten gebraucht werden, initializiert, aktualisiert und abgerufen werden. 
-In der Inizializierung werden z.B. Eventlistener für die Device-Position oder Audio-Input erstellt.    
+In der Inizializierung werden z.B. Eventlistener für die Device-Position oder Audio-Input erstellt. 
 Über eine `refresh()` Funktion können alle Daten aktualisiert werden.    
 Auch gibt es eine ["Blur" Klasse](https://github.com/JeydoJeydo/hawk-generative-gestaltung-WS24_25/blob/7dbcf44ebc2786ea90386ba9982de82150b81f13/sketch.js#L178), die für die 
-verschiedenen unscharfen Bereiche zuständig ist, die über den Canvas wandern.    
-In ihr können Position, Intensität und die Größe bestimmt werden.
+verschiedenen unscharfen Bereiche zuständig ist, die über den Canvas wandern. 
+In ihr können Position, Intensität und die Größe bestimmt werden.    
+Mit die meiste Zeit floss in die Überlegung, wie man am besten Gradienten auf den Elementen darstellen kann. 
+Schließlich fand ich eine gute Möglichkeit für die Umsetung darin, erst ein Array aus Farben zu erstellen, dessen Auswahl und Länge an verschiedene 
+Bedingungen geknüpft sind. Z.B. den Standort des Gerätes (`gradientColorArrayGenerator()`). Dann wird der Gradient an die Funktion `createGradientTexture()` Funktion 
+übergeben, die aus dem Gradient eine Textur erstellt, die auf einem 3D Mesh gerendert wird.    
+
+
+Mit mehr Zeit für die Umsätzung des Projektes, hätte ich mich gerne tiefer mit dem Erstellen von Gradienten beschäftigt. 
+Besonders die Erstellung eines Gradienten, der nicht nur aus vielen verschieden fabigen Linien besteht, 
+sondern einzelnen Pixeln, die ihre Position untereinander "verstehen", wäre spannend gewesen.    
+Grundsätzlich bin ich mit dem finalen Ergebnis aber zufrieden.
+
