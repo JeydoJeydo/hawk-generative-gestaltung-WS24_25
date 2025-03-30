@@ -159,8 +159,8 @@ class Data {
 	 * Generates a random number that can be used to make results more different
 	 */
 	#initSalt() {
-		const SALT_MIN = 0;
-		const SALT_MAX = 5;
+		const SALT_MIN = 6;
+		const SALT_MAX = 8;
 		let randomNumber = Math.floor(Math.random() * (SALT_MAX - SALT_MIN + 1) + SALT_MIN);
 		this.salt = randomNumber;
 	}
@@ -246,14 +246,19 @@ function populateAnimation(){
 	blurs.push(new Blur((width / 6) * 3.5, (height / 6) * 3, (width / 6) * 2, 3));
 	blurs.push(new Blur((width / 6) * 2, (height / 6) * 4.5, (width / 6) * 4, 3));
 
-	const AMOUNT_OF_SPHERES = 7;
-	const AMOUNT_OF_CYLINDERS = 7;
+	let amount = 6;
+	if(data.salt && data.salt > amount){
+		amount = data.salt;
+	}
 
-	for (let i = 0; i < AMOUNT_OF_SPHERES; i++) {
+	const amountOfSpheres = amount;
+	const amountOfCylinders = amount;
+
+	for (let i = 0; i < amountOfSpheres; i++) {
 		let gradientArray = gradientColorArrayGenerator(random(2, 5), data.tileId);
 		sceneSpheres.push(createGradientTexture(100, 100, gradientArray));
 	}
-	for (let i = 0; i < AMOUNT_OF_CYLINDERS; i++) {
+	for (let i = 0; i < amountOfCylinders; i++) {
 		let gradientArray = gradientColorArrayGenerator(random(4, 10), data.tileId);
 		sceneCylinders.push(createGradientTexture(100, 100, gradientArray));
 	}
@@ -288,10 +293,10 @@ document.querySelector("#interacter-accept").addEventListener("click", () => {
 	populateAnimation();	
 
 	// The geoposition needs a little time before it is loaded. 
-	// This code checks every 100ms if a position was set for 200 times.
+	// This code checks every 100ms if a position was set for 400 times.
 	// If no position is set, it times out and the default value is used.
 	let timeoutIndex = 0;
-	const TIMEOUT = 200;
+	const TIMEOUT = 400;
 	let awaitPosition = () => {
 		setTimeout(() => {
 			timeoutIndex++;
