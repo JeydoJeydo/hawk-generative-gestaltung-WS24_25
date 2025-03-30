@@ -71,6 +71,10 @@ dessen Auswahl und Länge an verschiedene Bedingungen geknüpft sind, z. B. den 
 Anschließend wird der Gradient an die Funktion `createGradientTexture()` übergeben, 
 die aus dem Gradient eine Textur erstellt, die auf einem 3D-Mesh gerendert wird.    
 
+Gegen Ende der Projektumsetzung ging es mir maßgeblich darum, den Code möglichst lesbar zu schreiben und zu 
+kommentieren. Auch war es mir wichtig, fallback variabeln so zu setzten, sodass teile der dynamischen Daten fehlen können, 
+wie z.B. der Standort, und trotzdem ein funktionierendes Bild dargestellt wird.    
+
 Mit mehr Zeit für die Umsetzung des Projekts hätte ich mich gerne tiefer mit der Erstellung von Gradienten beschäftigt. 
 Besonders die Entwicklung eines Gradienten, der nicht nur aus vielen verschiedenfarbigen Linien besteht, 
 sondern aus einzelnen Pixeln, die ihre Position untereinander "verstehen", wäre spannend gewesen.    
